@@ -22,13 +22,28 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  reporter: [
+    ['list'], 
+    ['html', {
+      outputFolder: 'playwright-report', 
+      open: 'never',                       
+      embedScreenshots: true,              
+      embedVideos: true,                    
+    }],
+    ['json', { outputFile: 'report.json' }] 
+  ],
   use: {
-    /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
-
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    baseURL: 'https://www.saucedemo.com',
+    storageState: 'auth.json',     // dùng login từ file auth.json
+    trace: 'on-first-retry',
+    headless: true,
+    viewport: { width: 1280, height: 720 },
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    ignoreHTTPSErrors: true,
+  
+    // Thêm phần này để dùng login bằng storageState
+    storageState: 'auth.json',
     trace: 'on-first-retry',
   },
 
@@ -38,6 +53,22 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+
+    /* Microsoft Edge (Sử dụng channel msedge) */
+    {
+      name: 'Microsoft Edge',
+      use: { 
+        ...devices['Desktop Edge'], 
+        channel: 'msedge' // Bắt buộc dòng này để chạy đúng browser Edge thật
+      },
+    },
+  ],
+});
 
     // {
     //   name: 'firefox',
@@ -68,7 +99,7 @@ export default defineConfig({
     //   name: 'Google Chrome',
     //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
     // },
-  ],
+  //],
 
   /* Run your local dev server before starting the tests */
   // webServer: {
@@ -76,4 +107,4 @@ export default defineConfig({
   //   url: 'http://localhost:3000',
   //   reuseExistingServer: !process.env.CI,
   // },
-});
+//});
